@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.impute import SimpleImputer
+from sklearn.metrics import roc_curve, auc
 
 #loads data from path
 def load_data(): 
