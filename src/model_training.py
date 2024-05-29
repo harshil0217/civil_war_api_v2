@@ -58,3 +58,6 @@ plt.ylabel('True Positive Rate')
 plt.title('ROC Curve for Civil War Prediction')
 plt.legend()
 plt.savefig('./images/roc_curve.png')
+
+# Save the model
+model.save('./models/civil_war_model.h5')
