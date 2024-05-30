@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from data_preprocessing import preprocess_data_predict
 import keras
@@ -30,6 +30,8 @@ class request_body(BaseModel):
 @app.post('/predict')
 def predict(data: request_body):
     X = preprocess_data_predict(data.country)
+    if X is None:
+        raise HTTPException(status_code=400, detail ="No Data Available for Country in 2023")
     prob = model.predict(X)
     return ({"prob of civil war": prob})
 

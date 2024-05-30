@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import roc_curve, auc
+import pickle
 
 #loads data from path
 def load_data(): 
@@ -78,6 +78,16 @@ def clean_data(indicators):
     X = pd.DataFrame(X)
     X = X[X.columns.intersection(indicators_2023.columns)]
 
+    #setting the index of indicators_2023 to country_text_id and year
+    indicators_2023.set_index(['country_text_id', 'year'], inplace=True)
+
+    #removing columns in indicators_2023 that are not in X
+    indicators_2023 = indicators_2023[indicators_2023.columns.intersection(X.columns)]
+
+    #saving 2023 data to csv
+    indicators.reset_index(inplace=True)  
+    indicators_2023.to_csv('./data/2023_data.csv', index=False)
+
     return X, y
 
 
@@ -95,6 +105,9 @@ def scale_data(X):
 def apply_pca(X):
     pca = PCA(n_components=30)
     X = pca.fit_transform(X)
+    # Save pca object
+    with open('./models/pca.pkl', 'wb') as f:
+        pickle.dump(pca, f)
     return X
 
 def split_data(X, y):
@@ -116,4 +129,17 @@ def preprocess_data():
     X_train, y_train = undersample_data(X_train, y_train)
     return X_train, X_test, y_train, y_test
 
+def preprocess_data_predict(country):
+    indicators_2023 = pd.read_csv('../data/2023_data.csv')
+    data = indicators_2023[indicators_2023['country_text_id'] == country]
+    data = data.drop(columns=['country_text_id', 'year'])
+    if data.empty:
+        return None
+    data = impute_data(data)
+    data = scale_data(data)
+    with open('../models/pca.pkl', 'rb') as f:
+        pca = pickle.load(f)
+    data = pca.transform(data)
+    return data
+    
 
