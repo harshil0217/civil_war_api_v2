@@ -85,7 +85,7 @@ def clean_data(indicators):
     indicators_2023 = indicators_2023[indicators_2023.columns.intersection(X.columns)]
 
     #saving 2023 data to csv
-    indicators.reset_index(inplace=True)  
+    indicators_2023.reset_index(inplace=True)  
     indicators_2023.to_csv('./data/2023_data.csv', index=False)
 
     return X, y
@@ -100,6 +100,9 @@ def impute_data(X):
 def scale_data(X):
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
+    # Save scaler object
+    with open('./models/scaler.pkl', 'wb') as f:
+        pickle.dump(scaler, f)
     return X
 
 def apply_pca(X):
@@ -130,14 +133,16 @@ def preprocess_data():
     return X_train, X_test, y_train, y_test
 
 def preprocess_data_predict(country):
-    indicators_2023 = pd.read_csv('../data/2023_data.csv')
+    indicators_2023 = pd.read_csv('./data/2023_data.csv')
     data = indicators_2023[indicators_2023['country_text_id'] == country]
     data = data.drop(columns=['country_text_id', 'year'])
     if data.empty:
         return None
-    data = impute_data(data)
-    data = scale_data(data)
-    with open('../models/pca.pkl', 'rb') as f:
+    data.fillna(0, inplace=True)
+    with open('./models/scaler.pkl', 'rb') as f:
+        scaler = pickle.load(f)
+    data = scaler.transform(data)
+    with open('./models/pca.pkl', 'rb') as f:
         pca = pickle.load(f)
     data = pca.transform(data)
     return data
