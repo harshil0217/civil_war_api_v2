@@ -1,6 +1,11 @@
 from fastapi import FastAPI
-import uvicorn
 from pydantic import BaseModel
+from data_preprocessing import preprocess_data_predict
+import keras
+
+
+#loading in model
+model = keras.models.load_model('../models/civil_war_model.h5')
 
 #creating fastpi app
 app = FastAPI()
@@ -24,5 +29,7 @@ class request_body(BaseModel):
 # Defining endpoint
 @app.post('/predict')
 def predict(data: request_body):
-    
+    X = preprocess_data_predict(data.country)
+    prob = model.predict(X)
+    return ({"prob of civil war": prob})
 
