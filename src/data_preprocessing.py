@@ -154,6 +154,7 @@ def preprocess_data_predict(country):
     # Load scaler and pca objects
     with open('./models/scaler.pkl', 'rb') as f:
         scaler = pickle.load(f)
+    data = scaler.transform(data)
     with open('./models/pca.pkl', 'rb') as f:
         pca = pickle.load(f)
     data = pca.transform(data)

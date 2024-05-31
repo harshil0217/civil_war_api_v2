@@ -12,4 +12,4 @@ def predict(country):
     return prob[0][0]
 
 
-print(predict('RUS'))
+print(predict('SDN'))
