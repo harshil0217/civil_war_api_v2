@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import boto3
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
@@ -6,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.impute import SimpleImputer
 import pickle
+import sqlite3
+from sqlalchemy import create_engine
 
 #loads data from path
 def load_data(): 
@@ -84,10 +87,12 @@ def clean_data(indicators):
     #removing columns in indicators_2023 that are not in X
     indicators_2023 = indicators_2023[indicators_2023.columns.intersection(X.columns)]
 
-    #saving 2023 data to csv
-    indicators_2023.reset_index(inplace=True)  
-    indicators_2023.to_csv('./data/2023_data.csv', index=False)
-
+    #saving 2023 data to sqlite database
+    indicators_2023.reset_index(inplace=True)
+    engine = create_engine('sqlite:///./data/2023_data.db')
+    indicators_2023.to_sql('indicators_2023', engine, if_exists='replace', index=False)
+    
+    #return data
     return X, y
 
 
@@ -133,12 +138,21 @@ def preprocess_data():
     return X_train, X_test, y_train, y_test
 
 def preprocess_data_predict(country):
-    indicators_2023 = pd.read_csv('./data/2023_data.csv')
-    data = indicators_2023[indicators_2023['country_text_id'] == country]
-    data = data.drop(columns=['country_text_id', 'year'])
-    if data.empty:
+    conn = sqlite3.connect('./data/2023_data.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM indicators_2023 WHERE country_text_id = ?", (country,))
+    data = cur.fetchall()
+    data = np.array(data)
+    data = data[:, 2:]
+    data = data.astype(float) 
+    #data = data[data['country_text_id'] == country]
+    #data = data.drop(columns=['country_text_id', 'year'])
+    if data.size == 0:
         return None
-    data.fillna(0, inplace=True)
+    #if 25 percent of the columns are NaN, return None
+    if np.isnan(data).sum() > data.size*0.25:
+        return None
+    data = np.nan_to_num(data)
     with open('./models/scaler.pkl', 'rb') as f:
         scaler = pickle.load(f)
     data = scaler.transform(data)
