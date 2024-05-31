@@ -145,17 +145,15 @@ def preprocess_data_predict(country):
     data = np.array(data)
     data = data[:, 2:]
     data = data.astype(float) 
-    #data = data[data['country_text_id'] == country]
-    #data = data.drop(columns=['country_text_id', 'year'])
     if data.size == 0:
         return None
     #if 25 percent of the columns are NaN, return None
     if np.isnan(data).sum() > data.size*0.25:
         return None
     data = np.nan_to_num(data)
+    # Load scaler and pca objects
     with open('./models/scaler.pkl', 'rb') as f:
         scaler = pickle.load(f)
-    data = scaler.transform(data)
     with open('./models/pca.pkl', 'rb') as f:
         pca = pickle.load(f)
     data = pca.transform(data)
