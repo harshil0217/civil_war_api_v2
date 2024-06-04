@@ -5,6 +5,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler
 from sklearn.impute import SimpleImputer
 import pickle
 import sqlite3
@@ -123,25 +124,27 @@ def split_data(X, y):
     return X_train, X_test, y_train, y_test
 
 def undersample_data(X_train, y_train):
-    rus = RandomUnderSampler(random_state=69)
+    rus = RandomOverSampler(random_state=69)
     X_train, y_train = rus.fit_resample(X_train, y_train)
     return X_train, y_train
 
-def preprocess_data():
+def preprocess_data(pca=True):
     indicators = load_data()
     X, y = clean_data(indicators)
     X = impute_data(X)
     X = scale_data(X)
-    X = apply_pca(X)
+    if pca:
+        X = apply_pca(X)
     X_train, X_test, y_train, y_test = split_data(X, y)
     X_train, y_train = undersample_data(X_train, y_train)
     return X_train, X_test, y_train, y_test
 
-def preprocess_data_predict(country):
+def preprocess_data_predict(country, pca=True):
     conn = sqlite3.connect('./data/2023_data.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM indicators_2023 WHERE country_text_id = ?", (country,))
     data = cur.fetchall()
+    columns = [description[0] for description in cur.description]
     data = np.array(data)
     data = data[:, 2:]
     data = data.astype(float) 
@@ -155,9 +158,10 @@ def preprocess_data_predict(country):
     with open('./models/scaler.pkl', 'rb') as f:
         scaler = pickle.load(f)
     data = scaler.transform(data)
-    with open('./models/pca.pkl', 'rb') as f:
-        pca = pickle.load(f)
-    data = pca.transform(data)
-    return data
+    if pca:
+        with open('./models/pca.pkl', 'rb') as f:
+            pca = pickle.load(f)
+        data = pca.transform(data)
+    return data, columns
     
 
