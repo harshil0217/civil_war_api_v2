@@ -8,9 +8,6 @@ import tensorflow as tf
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
-import shap
-import pickle
-from joblib import dump
 
 
 #load the preprocessed data
@@ -72,3 +69,7 @@ model.save('./models/civil_war_model_non_pca.h5')
 # Save the training data
 X_train = pd.DataFrame(X_train)
 X_train.to_csv('./data/X_train_non_pca.csv', index=False)
+
+
+
+
