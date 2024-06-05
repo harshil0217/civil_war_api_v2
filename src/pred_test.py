@@ -13,17 +13,6 @@ X, columns = preprocess_data_predict('AFG', pca=False)
 explainer = LimeTabularExplainer(X_train.to_numpy(), mode = 'classification',
                                      training_labels= y_train.to_numpy().ravel(), 
                                      feature_names=columns)
-'''
-conn = sqlite3.connect('./data/2023_data.db')
-cur = conn.cursor()
-cur.execute("SELECT * FROM indicators_2023")
-data_2023 = cur.fetchall()
-columns = [description[0] for description in cur.description]
-data_2023 = np.array(data_2023)
-data_2023 = pd.DataFrame(data_2023, columns=columns)
-data_2023[data_2023.columns[2:]] = data_2023[data_2023.columns[2:]].astype(float)
-print(columns)
-'''
 
 
 def predict(country):
@@ -35,7 +24,6 @@ def predict(country):
         return "Insufficient Data"
     prob = model.predict(X)
     return prob[0][0]
-    
 
 #create probability function
 def prob(data):
@@ -48,7 +36,7 @@ def lime_exp_as_plot(exp, flag):
     exp = exp.as_list(label=1)
     exp = sorted(exp, key=lambda x: abs(x[1]))
     
-    exp = exp[-10:]
+    exp = exp[-30:]
     
     vals = [x[1] for x in exp]
     names = [x[0] for x in exp]
@@ -57,7 +45,7 @@ def lime_exp_as_plot(exp, flag):
     pos = np.arange(len(exp)) + .5
     
     plt.barh(pos, vals, color=colors)
-    plt.yticks(pos, names)
+    plt.yticks(pos, names, fontsize=8)
     plt.title('LIME Plot for Civil War Prediction')
     plt.xlabel('Effect on Prediction')
     plt.ylabel('Feature')
@@ -71,6 +59,6 @@ def get_lime(country):
     
     lime_exp_as_plot(positive_lime, 'positive')
     
-print(predict('MMR'))
-get_lime('MMR')
+print(predict('SDN'))
+get_lime('SDN')
 
