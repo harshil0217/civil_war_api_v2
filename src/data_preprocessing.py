@@ -64,6 +64,9 @@ def clean_data(indicators):
 
     #removing columns that have the word region
     indicators = indicators[indicators.columns.drop(list(indicators.filter(regex='region')))]
+    
+    #removing area column
+    indicators = indicators.drop(columns=['e_area'])
 
     #setting index to country_text_id and year
     indicators.set_index(['country_text_id', 'year'], inplace=True)

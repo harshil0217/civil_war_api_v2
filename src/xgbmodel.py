@@ -16,6 +16,7 @@ xgb.fit(X_train, y_train)
 xgb_preds = xgb.predict(X_test)
 cm = confusion_matrix(y_test, xgb_preds)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot()
 plt.savefig('./images/confusion_matrix_xgb.png')
 print(classification_report(y_test, xgb_preds))
 
@@ -34,5 +35,8 @@ plt.ylabel('True Positive Rate')
 plt.title('ROC Curve for Civil War Prediction')
 plt.legend()
 plt.savefig('./images/roc_curve_xgb.png')
+
+#save model
+xgb.save_model('./models/xgb_model.json')
 
 

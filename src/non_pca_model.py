@@ -70,6 +70,10 @@ model.save('./models/civil_war_model_non_pca.h5')
 X_train = pd.DataFrame(X_train)
 X_train.to_csv('./data/X_train_non_pca.csv', index=False)
 
+#save the training y values
+y_train = pd.DataFrame(y_train)
+y_train.to_csv('./data/y_train_non_pca.csv', index=False)
+
 
 
 
