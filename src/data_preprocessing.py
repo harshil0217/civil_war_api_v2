@@ -106,6 +106,15 @@ def impute_data(X):
     X = imputer.fit_transform(X)
     return X
 
+def expand_categorical(X):
+    X = pd.DataFrame(X)
+    for col in X.columns:
+        if X[col].isin([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]).all():
+            print(col)
+            #X = pd.get_dummies(X, columns=[col], drop_first=True)
+            
+        
+
 
 def scale_data(X):
     scaler = StandardScaler()
@@ -135,6 +144,7 @@ def undersample_data(X_train, y_train):
 def preprocess_data(pca=True):
     indicators = load_data()
     X, y = clean_data(indicators)
+    expand_categorical(X)
     X = impute_data(X)
     X = scale_data(X)
     if pca:
