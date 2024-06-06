@@ -36,7 +36,7 @@ def lime_exp_as_plot(exp, flag):
     exp = exp.as_list(label=1)
     exp = sorted(exp, key=lambda x: abs(x[1]))
     
-    exp = exp[-30:]
+    exp = exp[-40:]
     
     vals = [x[1] for x in exp]
     names = [x[0] for x in exp]
@@ -58,7 +58,23 @@ def get_lime(country):
     positive_lime = explainer.explain_instance(X,prob, num_features=283)  
     
     lime_exp_as_plot(positive_lime, 'positive')
-    
-print(predict('SDN'))
-get_lime('SDN')
+
+'''
+data_2023 = pd.read_csv('./data/2023_data.csv')
+#dropping year column
+data_2023.drop(columns=['year'], inplace=True)
+#creating new dataframe
+civil_war_prob = pd.DataFrame(columns=['country_text_id', 'civil_war_prob'], index=data_2023.index)
+#iterating through each country
+for i in range(len(data_2023)):
+    prob = predict(data_2023['country_text_id'][i])
+    civil_war_prob.loc[i, 'country_text_id'] = data_2023['country_text_id'][i]
+    civil_war_prob.loc[i, 'civil_war_prob'] = prob
+   
+#saving to csv
+civil_war_prob.to_csv('./data/civil_war_prob.csv', index=False)
+'''
+
+predict('GIN')
+get_lime('GIN')
 

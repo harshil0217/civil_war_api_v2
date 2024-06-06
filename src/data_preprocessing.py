@@ -95,6 +95,7 @@ def clean_data(indicators):
     indicators_2023.reset_index(inplace=True)
     engine = create_engine('sqlite:///./data/2023_data.db')
     indicators_2023.to_sql('indicators_2023', engine, if_exists='replace', index=False)
+    indicators_2023.to_csv('./data/2023_data.csv', index=False)
     
     #return data
     return X, y
