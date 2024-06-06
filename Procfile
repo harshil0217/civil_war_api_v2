@@ -1,0 +1,1 @@
+web:  gunicorn --chdir src map_app:app
